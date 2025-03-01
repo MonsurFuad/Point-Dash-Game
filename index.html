@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Point Dash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to right, #FF7E5F, #FEB47B); /* Light gray background for the page */
+    }
+
+    #scoreboard {
+      font-size: 28px;
+      color: blue;
+      margin-bottom: 20px;
+    }
+
+    #gameContainer {
+      width: 500px;
+      height: 400px;
+      position: relative;
+      border: 5px solid #000;
+      background-color: #fef6e4; /* Light yellow background for the game area */
+      overflow: hidden; /* Hide anything outside the container */
+    }
+
+    .point, .bomb {
+      position: absolute;
+      width: 30px; /* Smaller size */
+      height: 30px; /* Smaller size */
+      cursor: pointer;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px; /* Adjust text size for smaller points */
+      transition: all 1s linear; /* Smooth transition for movement */
+    }
+
+    /* Point Colors */
+    .regular {
+      background-color: brown; /* Brown for regular +1 point */
+    }
+
+    .bonus {
+      background-color: orange; /* Orange for bonus +5 points */
+    }
+
+    .double {
+      background-color: green; /* Green for double points */
+    }
+
+    .bomb {
+      background-color: red; /* Red for bomb */
+    }
+
+    .timeBomb {
+      background-color: blue; /* Blue for time bomb */
+    }
+
+    #gameOver {
+      display: none;
+      font-size: 24px;
+      color: red;
+    }
+
+    #finalScore {
+      font-size: 20px;
+    }
+
+    #title {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    #restartBtn {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #restartBtn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="title">Point Dash</div>
+  <div id="scoreboard">
+    <p id="score">Score: 0</p>
+    <p id="highScore">High Score: 0</p> <!-- Display high score -->
+    <p id="gameOver">Game Over! Your final score is: <span id="finalScore"></span></p>
+  </div>
+
+  <div id="gameContainer"></div>
+
+  <button id="restartBtn" style="display: none;" onclick="startGame()">Restart</button> <!-- Restart button -->
+
+  <script>
+    let score = 0;
+    let timeLeft = 30;
+    let timer;
+    let pointTimer;
+    let timeBombTimer;
+    let doublePointsActive = false;
+
+    const gameContainer = document.getElementById("gameContainer");
+
+    // Get stored high score from localStorage
+    let highScore = localStorage.getItem("highScore") || 0;
+    document.getElementById("highScore").innerText = "High Score: " + highScore;
+
+    // Start the game
+    function startGame() {
+      // Reset game settings
+      document.getElementById("gameOver").style.display = "none"; // Hide game over message
+      document.getElementById("restartBtn").style.display = "none"; // Hide restart button
+      score = 0;
+      timeLeft = 30;
+      doublePointsActive = false;
+      document.getElementById("score").innerText = "Score: " + score;
+      timer = setInterval(countdown, 1000); // Start the countdown
+      pointTimer = setInterval(createPoints, 2000); // Generate points every 2 seconds (slower)
+    }
+
+    // Countdown function
+    function countdown() {
+      if (timeLeft <= 0) {
+        endGame(); // End the game when time is up
+      } else {
+        timeLeft--;
+      }
+    }
+
+    // End the game
+    function endGame() {
+      clearInterval(timer); // Stop the timer
+      clearInterval(pointTimer); // Stop generating points
+      clearInterval(timeBombTimer); // Stop time bomb timer
+      document.getElementById("gameOver").style.display = "block"; // Show game over message
+      document.getElementById("finalScore").innerText = score; // Display final score
+
+      // Check if current score is a new high score
+      if (score > highScore) {
+        highScore = score;
+        document.getElementById("highScore").innerText = "High Score: " + highScore;
+        // Save the new high score to localStorage
+        localStorage.setItem("highScore", highScore);
+      }
+
+      // Show the restart button
+      document.getElementById("restartBtn").style.display = "inline-block";
+    }
+
+    // Create random points or bombs within the game container
+    function createPoints() {
+      const pointsToCreate = Math.floor(Math.random() * 3) + 3; // Create 3 to 5 points at once
+
+      for (let i = 0; i < pointsToCreate; i++) {
+        const point = document.createElement("div");
+        point.classList.add("point");
+
+        // Random positions within the container's dimensions
+        const maxX = gameContainer.offsetWidth - 30; // Width minus point's size
+        const maxY = gameContainer.offsetHeight - 30; // Height minus point's size
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+
+        point.style.left = `${x}px`;
+        point.style.top = `${y}px`;
+
+        // Randomly decide if it's a regular point, bonus point, double point, bomb, or time bomb
+        const pointType = Math.floor(Math.random() * 6); // 6 options (including bombs)
+        let pointValue = '';
+        let direction = Math.floor(Math.random() * 4); // 4 possible directions
+
+        // Set the direction for movement
+        let moveDirection = '';
+        switch (direction) {
+          case 0: moveDirection = 'leftToRight'; break;  // Move left to right
+          case 1: moveDirection = 'rightToLeft'; break; // Move right to left
+          case 2: moveDirection = 'upToDown'; break;    // Move up to down
+          case 3: moveDirection = 'downToUp'; break;    // Move down to up
+        }
+
+        point.classList.add(moveDirection); // Add move direction to class
+
+        switch (pointType) {
+          case 0: // Regular Point
+            point.classList.add("regular");
+            pointValue = "+1";
+            point.onclick = () => {
+              if (doublePointsActive) score += 2;
+              else score++;
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          case 1: // Bonus Point
+            point.classList.add("bonus");
+            pointValue = "+5";
+            point.onclick = () => {
+              if (doublePointsActive) score += 10;
+              else score += 5;
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          case 2: // Double Points
+            point.classList.add("double");
+            pointValue = "Double";
+            point.onclick = () => {
+              doublePointsActive = true;
+              setTimeout(() => {
+                doublePointsActive = false;
+              }, 5000); // Double points last for 5 seconds
+              point.remove();
+            };
+            break;
+          case 3: // Bomb (Ends Game)
+            point.classList.add("bomb");
+            pointValue = "Bomb!";
+            point.onclick = () => {
+              endGame(); // End the game immediately if a bomb is clicked
+            };
+            break;
+          case 4: // Time Bomb
+            point.classList.add("timeBomb");
+            pointValue = "+5s";
+            point.onclick = () => {
+              timeLeft += 5; // Adds 5 extra seconds
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          default:
+            break;
+        }
+
+        // Add point value inside the point element
+        const pointText = document.createElement("span");
+        pointText.innerText = pointValue;
+        point.appendChild(pointText);
+
+        gameContainer.appendChild(point);
+
+        // Remove point after 2 seconds if not clicked
+        setTimeout(() => {
+          point.remove();
+        }, 2000);
+      }
+    }
+
+    // Start the game automatically when the page loads
+    window.onload = function() {
+      startGame(); // Automatically start the game
+    }
+  </script>
+
+</body>
+</html>
