@@ -27,4 +27,7 @@ Point Dash is an interactive, fast-paced game where the player needs to collect 
 ## User Interface
 ![Game Screenshot](Capture.PNG)
 
-Enjoy the game and try to beat your high score!
+
+<p align="center">
+  Enjoy the game and try to beat your high score!
+</p>
