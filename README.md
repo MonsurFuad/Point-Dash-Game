@@ -25,6 +25,6 @@ Point Dash is an interactive, fast-paced game where the player needs to collect 
 6. **Finish**: The game ends when the timer reaches zero or when you click on a bomb. Your final score will be displayed.
 
 ## User Interface
-[url=https://gifyu.com/image/bb7gX][img]https://s3.gifyu.com/images/bb7gX.png[/img][/url]
+![Game Screenshot](Capture.PNG)
 
 Enjoy the game and try to beat your high score!
