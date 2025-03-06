@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Point Dash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to right, #FF7E5F, #FEB47B);
+    }
+
+    #scoreboard {
+      font-size: 28px;
+      color: blue;
+      margin-bottom: 20px;
+    }
+
+    #timeLeft {
+      font-size: 24px;
+      color: green;
+      margin-bottom: 10px;
+    }
+
+    #gameContainer {
+      width: 500px;
+      height: 400px;
+      position: relative;
+      border: 5px solid #000;
+      background-color: #fef6e4;
+      overflow: hidden;
+    }
+
+    .point, .bomb {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      transition: all 1s linear;
+      z-index: 1;
+    }
+
+    .regular {
+      background-color: brown;
+    }
+
+    .bonus {
+      background-color: orange;
+    }
+
+    .double {
+      background-color: green;
+    }
+
+    .bomb {
+      background-color: red;
+    }
+
+    .timeBomb {
+      background-color: blue;
+    }
+
+    #gameOver {
+      display: none;
+      font-size: 24px;
+      color: red;
+    }
+
+    #finalScore {
+      font-size: 20px;
+    }
+
+    #title {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    #restartBtn {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #restartBtn:hover {
+      background-color: #45a049;
+    }
+
+    #pointNote {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 18px;
+      color: #333;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+    }
+
+    #pointNote p {
+      margin: 0;
+      font-weight: bold;
+    }
+
+    #pointNote span {
+      display: block;
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 50%;
+    }
+    
+
+    #pointNote .regular {
+      background-color: brown;
+    }
+
+    #pointNote .bonus {
+      background-color: orange;
+    }
+
+    #pointNote .double {
+      background-color: green;
+    }
+
+    #pointNote .bomb {
+      background-color: red;
+    }
+
+    #pointNote .timeBomb {
+      background-color: blue;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="title">Point Dash</div>
+  <div id="scoreboard">
+    <p id="score">Score: 0</p>
+    <p id="highScore">High Score: 0</p>
+    <p id="timeLeft">Time Left: 30s</p>
+    <p id="gameOver">Game Over! Your final score is: <span id="finalScore"></span></p>
+  </div>
+
+  <div id="gameContainer"></div>
+
+  <button id="restartBtn" style="display: none;" onclick="startGame()">Restart</button>
+
+  <div id="pointNote">
+    <p>Point Types:</p>
+    <span class="regular">+1 Point</span>
+    <span class="bonus">+5 Points</span>
+    <span class="double">Double Points</span>
+    <span class="timeBomb">+5s Time</span>
+  </div>
+
+  <script>
+    let score = 0;
+    let timeLeft = 30;
+    let timer;
+    let pointTimer;
+    let doublePointsActive = false;
+    const gameContainer = document.getElementById("gameContainer");
+
+    let highScore = localStorage.getItem("highScore") || 0;
+    document.getElementById("highScore").innerText = "High Score: " + highScore;
+
+    function startGame() {
+      document.getElementById("gameOver").style.display = "none";
+      document.getElementById("restartBtn").style.display = "none";
+      score = 0;
+      timeLeft = 30;
+      doublePointsActive = false;
+      document.getElementById("score").innerText = "Score: " + score;
+      document.getElementById("timeLeft").innerText = "Time Left: " + timeLeft + "s";
+      timer = setInterval(countdown, 1000);
+      pointTimer = setInterval(createPoints, 2000);
+    }
+
+    function countdown() {
+      if (timeLeft <= 0) {
+        endGame();
+      } else {
+        timeLeft--;
+        document.getElementById("timeLeft").innerText = "Time Left: " + timeLeft + "s";
+      }
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      clearInterval(pointTimer);
+      document.getElementById("gameOver").style.display = "block";
+      document.getElementById("finalScore").innerText = score;
+      if (score > highScore) {
+        highScore = score;
+        document.getElementById("highScore").innerText = "High Score: " + highScore;
+        localStorage.setItem("highScore", highScore);
+      }
+      document.getElementById("restartBtn").style.display = "inline-block";
+    }
+
+    function createPoints() {
+      const pointsToCreate = Math.floor(Math.random() * 3) + 3;
+      for (let i = 0; i < pointsToCreate; i++) {
+        const point = document.createElement("div");
+        point.classList.add("point");
+
+        const maxX = gameContainer.offsetWidth - 30;
+        const maxY = gameContainer.offsetHeight - 30;
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+
+        point.style.left = `${x}px`;
+        point.style.top = `${y}px`;
+
+        const pointType = Math.floor(Math.random() * 5);
+        let pointValue = '';
+        let moveDirection = randomMoveDirection();
+        point.classList.add(moveDirection);
+
+        switch (pointType) {
+          case 0:
+            point.classList.add("regular");
+            pointValue = "";
+            point.onclick = () => {
+              score += doublePointsActive ? 2 : 1;
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          case 1:
+            point.classList.add("bonus");
+            pointValue = "";
+            point.onclick = () => {
+              score += doublePointsActive ? 10 : 5;
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          case 2:
+            point.classList.add("double");
+            pointValue = "";
+            point.onclick = () => {
+              doublePointsActive = true;
+              setTimeout(() => doublePointsActive = false, 5000);
+              point.remove();
+            };
+            break;
+          case 3:
+            point.classList.add("bomb");
+            pointValue = "";
+            point.onclick = () => endGame();
+            break;
+          case 4:
+            point.classList.add("timeBomb");
+            pointValue = "";
+            point.onclick = () => {
+              timeLeft += 5;
+              document.getElementById("score").innerText = "Score: " + score;
+              point.remove();
+            };
+            break;
+          default:
+            break;
+        }
+
+        const pointText = document.createElement("span");
+        pointText.innerText = pointValue;
+        point.appendChild(pointText);
+        gameContainer.appendChild(point);
+
+        movePoint(point, moveDirection);
+      }
+    }
+
+    function randomMoveDirection() {
+      const directions = ['leftToRight', 'rightToLeft', 'upToDown', 'downToUp'];
+      return directions[Math.floor(Math.random() * directions.length)];
+    }
+
+    function movePoint(point, direction) {
+      let posX = parseFloat(point.style.left);
+      let posY = parseFloat(point.style.top);
+      const speed = 2;
+
+      function move() {
+        switch (direction) {
+          case 'leftToRight':
+            if (posX < gameContainer.offsetWidth - 30) posX += speed;
+            break;
+          case 'rightToLeft':
+            if (posX > 0) posX -= speed;
+            break;
+          case 'upToDown':
+            if (posY < gameContainer.offsetHeight - 30) posY += speed;
+            break;
+          case 'downToUp':
+            if (posY > 0) posY -= speed;
+            break;
+        }
+
+        point.style.left = `${posX}px`;
+        point.style.top = `${posY}px`;
+
+        if (posX <= 0 || posX >= gameContainer.offsetWidth - 30 || posY <= 0 || posY >= gameContainer.offsetHeight - 30) {
+          point.remove();
+        } else {
+          requestAnimationFrame(move);
+        }
+      }
+
+      requestAnimationFrame(move);
+    }
+
+    window.onload = function() {
+      startGame();
+    }
+  </script>
+
+</body>
+</html>
