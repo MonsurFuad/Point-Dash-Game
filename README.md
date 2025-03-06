@@ -1,7 +1,7 @@
 ## Game Name
 **Point Dash**
 
-## Live Link: 
+## Live Link 
 https://monsurfuad.github.io/Point-Dash-Game/
 
 ## Description
@@ -23,5 +23,8 @@ Point Dash is an interactive, fast-paced game where the player needs to collect 
 4. **Watch the Timer**: The game runs on a 30-second countdown. Keep an eye on the time left!
 5. **Extra Time**: Click on time bombs to add more time to the clock.
 6. **Finish**: The game ends when the timer reaches zero or when you click on a bomb. Your final score will be displayed.
+
+## User Interface
+https://gifyu.com/image/bb7gX
 
 Enjoy the game and try to beat your high score!
