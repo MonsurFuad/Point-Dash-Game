@@ -1,6 +1,9 @@
 ## Game Name
 **Point Dash**
 
+## Live Link: 
+https://monsurfuad.github.io/Point-Dash-Game/
+
 ## Description
 Point Dash is an interactive, fast-paced game where the player needs to collect points scattered randomly within a game area before time runs out. The game includes different types of points, such as regular points (+1), bonus points (+5), double points, bombs, and time bombs. The goal is to accumulate the highest score possible while avoiding bombs and collecting points within the given time limit.
 
