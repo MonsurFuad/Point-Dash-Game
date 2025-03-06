@@ -1,5 +1,3 @@
-# Point Dash
-
 ## Game Name
 **Point Dash**
 
